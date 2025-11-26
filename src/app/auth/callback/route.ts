@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
 
       if (!error) {
         // Email confirmed successfully - redirect to dashboard
-        const redirectUrl = new URL(next, request.url);
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+        const redirectUrl = new URL(next, appUrl);
         return NextResponse.redirect(redirectUrl);
       }
     } catch (error) {
@@ -33,7 +34,8 @@ export async function GET(request: NextRequest) {
   }
 
   // If there's an error or missing params, redirect to login with error
-  const loginUrl = new URL("/login", request.url);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
+  const loginUrl = new URL("/login", appUrl);
   loginUrl.searchParams.set(
     "error",
     "Email verification failed. Please try again."

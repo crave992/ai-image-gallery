@@ -67,11 +67,12 @@ export async function signUp(
   try {
     const supabase = createSupabaseClient();
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const { data, error } = await supabase.auth.signUp({
       email: credentials.email,
       password: credentials.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${appUrl}/auth/callback`,
         data: {
           first_name: credentials.firstName,
           last_name: credentials.lastName,
