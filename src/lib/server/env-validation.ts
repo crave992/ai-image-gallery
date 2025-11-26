@@ -12,7 +12,7 @@ const optionalEnvVars = {
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   AI_SERVICE_API_KEY: process.env.AI_SERVICE_API_KEY,
   AI_SERVICE_URL: process.env.AI_SERVICE_URL,
-  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 } as const;
 
 /**
