@@ -282,6 +282,24 @@ If the AI fails for some reason, you can retry it. Your image is still there, it
 
 I'm using `gemini-2.5-flash` as the primary model, with `gemini-1.5-flash` as a fallback. Both are fast and accurate.
 
+## ⏱️ Development Time Breakdown
+
+I built this in about 8 hours total. Here's how the time was spent:
+
+| Feature Area         | Time Spent  | What's Included                                                             |
+| -------------------- | ----------- | --------------------------------------------------------------------------- |
+| **Authentication**   | ~1 hour     | Sign up, sign in, sign out, protected routes, user sessions                 |
+| **Image Management** | ~1.5 hours  | Upload (drag & drop), thumbnail generation, storage, deletion, pagination   |
+| **AI Analysis**      | ~2 hours    | Gemini API integration, background processing, status tracking, retry logic |
+| **Search Features**  | ~1.5 hours  | Text search, color filtering, similarity matching, filter combinations      |
+| **Other Features**   | ~1 hour     | Download, tag editing, JSON export, multi-select deletion                   |
+| **Layout (UI/UX)**   | ~45 minutes | Responsive design, light/dark mode, mobile optimization, loading states     |
+| **Unit Testing**     | ~30 minutes | Core utility tests, 41+ test cases, Jest setup                              |
+
+**Total: ~8 hours**
+
+Most of the time went into getting the AI integration right and making sure the search features actually work well. The UI took less time thanks to Tailwind and Shadcn UI doing most of the heavy lifting.
+
 ## 🎯 What's Done, What's Next
 
 **Done:**
