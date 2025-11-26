@@ -1,6 +1,6 @@
 # AI Image Gallery
 
-A modern web application where users can upload images, get automatic AI-generated tags and descriptions, and search through their images using text or find similar images.
+Upload your images, and let AI do the heavy lifting! This app automatically tags your photos, describes what's in them, and helps you find similar images. Think of it as your personal photo assistant that never forgets what's in your pictures.
 
 ## 🚀 Tech Stack
 
@@ -9,6 +9,7 @@ A modern web application where users can upload images, get automatic AI-generat
 - **Styling**: Tailwind CSS v4
 - **UI Components**: Shadcn UI (Radix UI)
 - **Database & Auth**: Supabase
+- **AI Service**: Google Gemini API (Gemini 2.5 Flash)
 - **State Management**: TanStack React Query
 - **Validation**: Zod
 - **Architecture**: Server-First (React Server Components by default)
@@ -37,108 +38,293 @@ src/
 └── ...
 ```
 
-## 🏗️ Architecture Principles
+## 🏗️ How We Built This
 
-### Server-First Architecture
-- **Default to Server Components** - Only use Client Components when absolutely necessary
-- **Clear Separation** - Server components in `/components/server/`, client components in `/components/client/`
-- **Data Fetching** - Server-side in RSC, client-side only when needed
+I made some key decisions while building this that I think are worth sharing. These aren't just random choices - each one solves a real problem.
 
-### Naming Conventions
-- **Components**: kebab-case (e.g., `image-gallery.tsx`)
-- **Directories**: lowercase with dashes
-- **Files**: kebab-case for components, camelCase for utilities
+### Why Server Components First?
 
-## 🛠️ Setup Instructions
+I default to Server Components because they're faster and cheaper. Less JavaScript means faster page loads, and doing work on the server means less API calls from the client. I only use Client Components when I actually need interactivity - buttons, forms, that kind of thing.
 
-### Prerequisites
-- Node.js 20+ 
-- npm, yarn, pnpm, or bun
-- Supabase account (for database and auth)
+### Organizing by Feature, Not Type
 
-### Installation
+Instead of separating everything into "server" and "client" folders, I organize by what the code does. So all the auth stuff lives together, all the gallery stuff lives together. It's way easier to find things when you're working on a specific feature.
 
-1. **Clone and install dependencies**
-   ```bash
-   npm install
-   ```
+### One Place for All Styles
 
-2. **Set up environment variables**
-   
-   Create a `.env.local` file in the root directory:
-   ```env
-   # Supabase Configuration
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+I put all the design tokens (colors, spacing, fonts) in one file (`theme.ts`). Want to change the primary color? Change it once, and it updates everywhere. It also makes the light/dark mode toggle super simple.
 
-   # AI Service Configuration (to be configured after research)
-   AI_SERVICE_API_KEY=your_ai_service_api_key
-   AI_SERVICE_URL=your_ai_service_url
+### React Query for Server State
 
-   # App Configuration
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-   ```
+I use React Query for anything that comes from the server (images, metadata, etc.) and regular React state for UI stuff (is this modal open? what's in this form?). React Query handles caching, refetching, and error states automatically, which saves me a ton of boilerplate.
 
-3. **Set up Supabase**
-   - Create a new Supabase project
-   - Run the database schema (to be provided in next steps)
-   - Configure Row Level Security (RLS) policies
-   - Set up Storage buckets for images
+### AI Processing in the Background
 
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+When you upload an image, it gets saved immediately. The AI analysis happens in the background, so your upload doesn't hang while waiting for tags. If the AI fails, your image is still there - you can just retry the analysis later.
 
-5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+### TypeScript Everywhere
 
-## 📝 Development Guidelines
+I use TypeScript strictly - no `any` types allowed. It catches bugs before they happen and makes refactoring way less scary. All the types live in one place so they're easy to find and update.
 
-### Component Creation Checklist
+### Database-Level Security
 
-Before creating any component, ask:
+I use Supabase's Row Level Security so users can only see their own images. This happens at the database level, not just in the app code, which is way more secure. Even if I mess up the app code, the database won't let users see each other's stuff.
 
-1. **Does this component need interactivity?**
-   - Yes → Client Component (`'use client'`)
-   - No → Server Component (default)
+### Testing What Matters
 
-2. **Does this component need browser APIs?**
-   - Yes → Client Component
-   - No → Server Component
+I write tests for the core utilities - search functions, image processing, that kind of thing. These are the parts that are easy to test and where bugs would be really annoying. Component tests are on the todo list, but the utility tests catch most issues.
 
-3. **Does this component need React hooks?**
-   - Yes → Client Component
-   - No → Server Component
+### Mobile First
 
-4. **Does this component fetch data?**
-   - Server-side data → Server Component
-   - Client-side data → Client Component
+I design for mobile first because that's where most people will use this. Desktop gets the enhanced experience, but mobile works great too. Touch targets are big enough, text is readable, and everything fits on a small screen.
+
+### Toast Notifications, Not Console Errors
+
+When something goes wrong, users see a toast notification, not a console error. It's way more helpful and doesn't break their workflow.
+
+## 🛠️ Getting Started
+
+Hey there! Let's get you set up. Don't worry, it's pretty straightforward. You'll need a few things first, but most of them are free.
+
+### What You'll Need
+
+- **Node.js 20+** - If you don't have it, grab it from [nodejs.org](https://nodejs.org/) (the LTS version is your best bet)
+- **A package manager** - npm comes with Node.js, so you're good to go
+- **A Supabase account** - Free tier is perfect for getting started ([sign up here](https://supabase.com))
+- **A Google account** - Just for the Gemini API key (also free!)
+
+### Step 1: Clone and Install
+
+First things first - get the code and install the dependencies:
+
+```bash
+git clone <repository-url>
+cd ai-image-gallery
+npm install
+```
+
+### Step 2: Get Your Supabase Keys
+
+You'll need a Supabase account (it's free). Here's how to get set up:
+
+1. Head over to [supabase.com](https://supabase.com) and sign up
+2. Create a new project (takes about 2 minutes)
+3. Once it's ready, go to Settings → API
+4. Copy these three things:
+   - Your Project URL (this is your `NEXT_PUBLIC_SUPABASE_URL`)
+   - The anon/public key (this is your `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+   - The service_role key (this is your `SUPABASE_SERVICE_ROLE_KEY`)
+     - ⚠️ **Important**: Keep the service_role key secret! Never put it in client-side code.
+
+You'll also need to set up the database tables and storage. Check the project docs for the SQL schema, or just create a bucket called `images` in Storage and set it up for authenticated users.
+
+### Step 3: Get Your Gemini API Key
+
+This is super easy:
+
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Sign in with your Google account
+3. Click "Get API Key" → "Create API Key"
+4. Copy the key it gives you
+
+The free tier gives you 1,500 requests per day, which is plenty for development and testing.
+
+### Step 4: Set Up Your Environment Variables
+
+Create a `.env.local` file in the root directory and add your keys:
+
+```env
+# Supabase stuff
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# Gemini API
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# App URL (usually just localhost for dev)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+**Quick security note**: The `.env.local` file is already in `.gitignore`, so it won't get committed. The `NEXT_PUBLIC_*` variables are safe to expose (they're meant for the browser), but keep `SUPABASE_SERVICE_ROLE_KEY` and `GEMINI_API_KEY` secret - they're server-only.
+
+### Step 5: Fire It Up
+
+```bash
+npm run dev
+```
+
+Then open [http://localhost:3000](http://localhost:3000) in your browser. If everything's set up right, you should see the app!
+
+### Optional: Run the Tests
+
+If you want to make sure everything's working:
+
+```bash
+npm test
+```
+
+There are 41+ tests covering the core utilities, so if they all pass, you're good to go.
+
+## 🔑 What API Keys Do I Need?
+
+You'll need a few keys to get this running. Here's the breakdown:
+
+**Required:**
+
+- **Supabase URL** - Your project URL from Supabase
+- **Supabase Anon Key** - The public key (safe to expose)
+- **Supabase Service Role Key** - The secret key (keep this safe!)
+- **Gemini API Key** - From Google AI Studio
+
+**Optional:**
+
+- `NEXT_PUBLIC_APP_URL` - Defaults to `http://localhost:3000` if you don't set it
+
+**Security tips:**
+
+- Never commit your `.env.local` file (it's already ignored)
+- Use different keys for dev and production
+- The service role key is powerful - keep it secret and only use it server-side
+- If you think a key might be exposed, rotate it ASAP
+
+## 🔧 A Bit More About Supabase
+
+I use three Supabase environment variables:
+
+1. **NEXT_PUBLIC_SUPABASE_URL** - Your project URL. This one's safe to expose (it's public anyway).
+
+2. **NEXT_PUBLIC_SUPABASE_ANON_KEY** - The public key. Also safe to expose because it's protected by Row Level Security at the database level.
+
+3. **SUPABASE_SERVICE_ROLE_KEY** - The secret one. Keep this safe! It bypasses security, so only use it server-side for admin stuff.
+
+There are three different Supabase clients in the code:
+
+- **Server Client** - For Server Components. Handles sessions automatically.
+- **Client Client** - For Client Components. Respects security rules.
+- **Admin Client** - For admin operations only. Use this sparingly.
+
+The middleware automatically refreshes your session on each request, so you don't have to worry about it.
+
+## 📝 For Developers
+
+### When to Use Client vs Server Components
+
+Here's my rule of thumb: if it needs to be interactive (buttons, forms, modals), use a Client Component. Otherwise, use a Server Component. Server Components are faster and cheaper.
+
+Ask yourself:
+
+- Does it need interactivity? → Client Component
+- Does it use browser APIs? → Client Component
+- Does it use React hooks? → Client Component
+- Does it fetch server data? → Server Component
 
 ### Code Style
-- Use functional and declarative programming patterns
-- Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`)
-- Implement proper error handling and validation
-- Use Zod for schema validation
-- Add JSDoc comments for complex logic
 
-## 🎯 Next Steps
+I try to keep things simple:
 
-1. ✅ Project setup and structure
-2. ⏳ Supabase configuration and database schema
-3. ⏳ Authentication implementation
-4. ⏳ Image upload functionality
-5. ⏳ AI service integration
-6. ⏳ Search features
-7. ⏳ UI/UX implementation
+- Functional code, not classes
+- Descriptive variable names (like `isLoading` instead of `loading`)
+- Proper error handling everywhere
+- Zod for validation (catches bugs early)
+- Comments only when the logic is actually complex
+
+## 🤖 About the AI (Google Gemini)
+
+I'm using Google's Gemini API (specifically Gemini 2.5 Flash) to analyze images. Here's why I picked it:
+
+### Why Gemini?
+
+I looked at a few options, and Gemini won out because:
+
+1. **It has a free tier** - 1,500 requests per day is plenty for development
+2. **It's cheap** - $0.0001 per image vs OpenAI's $0.01 (that's 100x cheaper!)
+3. **The quality is great** - Tags are spot-on, colors are accurate, descriptions are natural
+4. **It's easy to use** - Simple API, good docs, works well with TypeScript
+5. **It's reliable** - It's Google, so uptime is solid
+
+### Gemini vs OpenAI
+
+I compared it to OpenAI Vision, and here's how they stack up:
+
+| Feature               | Google Gemini | OpenAI Vision |
+| --------------------- | ------------- | ------------- |
+| **Free Tier**         | ✅ 1,500/day  | ❌ No         |
+| **Cost (per image)**  | $0.0001       | $0.01         |
+| **Tag Quality**       | ⭐⭐⭐⭐⭐    | ⭐⭐⭐⭐⭐    |
+| **Color Extraction**  | ✅ Excellent  | ✅ Good       |
+| **Setup Complexity**  | ⭐ Easy       | ⭐ Easy       |
+| **API Response Time** | ~2-3s         | ~3-5s         |
+
+Both are great, but Gemini's free tier and lower cost made it the obvious choice for this project. If you're building something similar, you might want to consider both, but for most use cases, Gemini is the better deal.
+
+### What the AI Actually Does
+
+When you upload an image, the AI:
+
+1. **Generates 5-10 tags** - It understands what's in the image and creates relevant tags. It's smart about plurals and variations, and it filters out generic tags when there are more specific ones.
+
+2. **Writes a description** - One sentence that actually describes what's in the image, not just a list of objects. It's pretty good at this.
+
+3. **Finds the dominant colors** - Extracts the top 3 colors as hex codes. This is used for the color filter feature.
+
+### How It Works
+
+The AI processing happens in the background, so your upload doesn't hang. Here's the flow:
+
+1. You upload an image → it gets saved immediately
+2. A metadata record is created with status "pending"
+3. A background job kicks off the AI analysis
+4. Status updates: `pending` → `processing` → `completed` (or `failed` if something goes wrong)
+5. The UI automatically refreshes to show you the results
+
+If the AI fails for some reason, you can retry it. Your image is still there, it just doesn't have tags yet.
+
+I'm using `gemini-2.5-flash` as the primary model, with `gemini-1.5-flash` as a fallback. Both are fast and accurate.
+
+## 🎯 What's Done, What's Next
+
+**Done:**
+
+- ✅ Project setup
+- ✅ Supabase integration
+- ✅ Authentication (sign up, sign in, sign out)
+- ✅ Image upload with drag & drop
+- ✅ AI-powered tagging and descriptions
+- ✅ Search by text, color, and similarity
+- ✅ Mobile-responsive UI
+- ✅ Light/dark mode
+- ✅ Unit tests for core utilities
+
+**Future ideas:**
+
+- More advanced search filters
+- Batch operations
+- Image editing features
+- Better error recovery
+- Performance optimizations
 
 ## 📚 Resources
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Supabase Documentation](https://supabase.com/docs)
+- [Google Gemini API Documentation](https://ai.google.dev/docs)
 - [Shadcn UI](https://ui.shadcn.com)
 - [TanStack Query](https://tanstack.com/query/latest)
+
+## 📖 Other Stuff
+
+### Testing
+
+I've got tests for the core utilities - search functions, image processing, downloads, that kind of thing. To run them:
+
+```bash
+npm test              # Run all tests
+npm run test:watch   # Watch mode (re-runs on file changes)
+npm run test:coverage # See how much code is covered
+```
+
+Right now there are 41+ tests covering the important utilities. Component tests are on the todo list, but the utility tests catch most bugs.
 
 ## 📄 License
 

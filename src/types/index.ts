@@ -1,4 +1,20 @@
 /**
+ * User types
+ */
+export interface User {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
+/**
+ * Auth user type (extends User with auth-specific fields)
+ */
+export interface AuthUser extends User {
+  email: string;
+}
+
+/**
  * Database types for images
  */
 export interface Image {
@@ -8,6 +24,7 @@ export interface Image {
   original_path: string;
   thumbnail_path: string;
   uploaded_at: string;
+  created_at: string;
 }
 
 /**
@@ -22,6 +39,7 @@ export interface ImageMetadata {
   colors: string[];
   ai_processing_status: "pending" | "processing" | "completed" | "failed";
   created_at: string;
+  updated_at: string;
 }
 
 /**
@@ -38,5 +56,14 @@ export interface AIProcessingResult {
   tags: string[];
   description: string;
   colors: string[];
+}
+
+/**
+ * Search filters interface
+ */
+export interface SearchFilters {
+  textQuery?: string;
+  colorFilter?: string;
+  similarToImageId?: number;
 }
 

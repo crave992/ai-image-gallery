@@ -117,6 +117,41 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors;
+    /* Prevent text size adjustment on iOS */
+    -webkit-text-size-adjust: 100%;
+    /* Improve touch scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+  html {
+    @apply transition-colors;
+    /* Prevent horizontal scroll on mobile */
+    overflow-x: hidden;
+  }
+  /* Improve touch targets on mobile */
+  button, a, [role="button"] {
+    @apply touch-manipulation;
+  }
+  /* Remove blinking cursor from non-input elements */
+  [data-slot="card-title"],
+  [data-slot="card-content"] {
+    caret-color: transparent !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+  }
+  [data-slot="card-title"]:focus,
+  [data-slot="card-content"]:focus {
+    outline: none !important;
+  }
+  /* Remove caret from grid containers */
+  .grid[class*="grid-cols"] {
+    caret-color: transparent !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+  .grid[class*="grid-cols"]:focus {
+    outline: none !important;
   }
 }
