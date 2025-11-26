@@ -18,24 +18,114 @@ Upload your images, and let AI do the heavy lifting! This app automatically tags
 
 ```
 src/
-├── app/                    # Next.js App Router pages (Server Components)
-│   ├── layout.tsx         # Root layout
-│   ├── page.tsx           # Home page
-│   └── globals.css         # Global styles
+├── app/                          # Next.js App Router (Server Components)
+│   ├── api/                     # API routes
+│   │   ├── ai/
+│   │   │   └── process-image/   # AI processing endpoint
+│   │   ├── images/
+│   │   │   └── [id]/
+│   │   │       └── metadata/    # Metadata update endpoint
+│   │   └── image-proxy/         # Image proxy endpoint
+│   ├── auth/
+│   │   └── callback/            # Auth callback handler
+│   ├── dashboard/              # Protected dashboard page
+│   ├── login/                  # Login page
+│   ├── signup/                 # Signup page
+│   ├── test-connection/        # Connection test page
+│   ├── layout.tsx              # Root layout
+│   ├── page.tsx                # Home page
+│   └── globals.css             # Global styles
 ├── components/
-│   ├── server/            # Server Components (RSC)
-│   ├── client/            # Client Components (interactive)
-│   └── ui/                # Shadcn UI components
+│   ├── auth/                   # Authentication components
+│   │   ├── auth-form-wrapper.tsx
+│   │   ├── auth-redirect.tsx
+│   │   ├── form-error.tsx
+│   │   ├── form-success.tsx
+│   │   ├── login-form.tsx
+│   │   ├── login-page-content.tsx
+│   │   ├── signup-form.tsx
+│   │   └── signup-page-content.tsx
+│   ├── gallery/                # Gallery and image display
+│   │   ├── color-filter-dialog.tsx
+│   │   ├── dashboard-content.tsx
+│   │   ├── dashboard-header.tsx
+│   │   ├── dashboard-section-header.tsx
+│   │   ├── image-dialog.tsx
+│   │   ├── image-grid.tsx
+│   │   └── search-bar.tsx
+│   ├── shared/                 # Shared components
+│   │   ├── skeletons/          # Loading skeletons
+│   │   │   ├── color-filter-skeleton.tsx
+│   │   │   ├── image-dialog-skeleton.tsx
+│   │   │   ├── image-grid-skeleton.tsx
+│   │   │   └── search-bar-skeleton.tsx
+│   │   ├── pagination.tsx
+│   │   ├── theme-toggle.tsx
+│   │   └── toaster.tsx
+│   ├── upload/                 # Image upload components
+│   │   ├── image-upload-zone.tsx
+│   │   ├── upload-images-dialog.tsx
+│   │   └── upload-progress.tsx
+│   └── ui/                     # Shadcn UI components
+│       ├── alert-dialog.tsx
+│       ├── alert.tsx
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── checkbox.tsx
+│       ├── dialog.tsx
+│       ├── form.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── progress.tsx
+│       ├── tabs.tsx
+│       └── toast.tsx
+├── contexts/                   # React contexts
+│   ├── auth-context.tsx
+│   └── theme-context.tsx
+├── hooks/                      # Custom React hooks
+│   ├── use-auth.ts
+│   ├── use-delete-image.ts
+│   ├── use-delete-multiple-images.ts
+│   ├── use-image-url.ts
+│   ├── use-images.ts
+│   ├── use-retry-ai-processing.ts
+│   ├── use-search-images.ts
+│   ├── use-sign-in.ts
+│   ├── use-sign-out.ts
+│   ├── use-sign-up.ts
+│   ├── use-toast.ts
+│   ├── use-update-image-metadata.ts
+│   ├── use-upload-image.ts
+│   └── index.ts
 ├── lib/
-│   ├── server/            # Server-only utilities
-│   │   └── supabase-server.ts
-│   ├── client/            # Client-only utilities
-│   │   ├── supabase-client.ts
-│   │   └── query-provider.tsx
-│   └── utils.ts           # Shared utilities
-├── hooks/                 # React hooks
-├── types/                 # TypeScript type definitions
-└── ...
+│   ├── client/                 # Client-side utilities
+│   │   ├── auth-service.ts
+│   │   ├── image-service.ts
+│   │   ├── image-utils.ts
+│   │   ├── query-provider.tsx
+│   │   └── supabase-client.ts
+│   ├── schemas/                # Zod validation schemas
+│   │   └── auth.ts
+│   ├── server/                 # Server-side utilities
+│   │   ├── ai-service.ts
+│   │   ├── auth-service.ts
+│   │   ├── env-validation.ts
+│   │   ├── supabase-admin.ts
+│   │   ├── supabase-server.ts
+│   │   └── test-connection.ts
+│   ├── shared/                 # Shared utilities
+│   │   ├── __tests__/          # Unit tests
+│   │   │   ├── download-utils.test.ts
+│   │   │   └── search-utils.test.ts
+│   │   ├── download-utils.ts
+│   │   ├── search-utils.ts
+│   │   └── toast-utils.ts
+│   ├── constants.ts            # App constants
+│   ├── theme.ts                 # Design tokens
+│   └── utils.ts                 # Shared utilities
+├── types/                      # TypeScript type definitions
+│   └── index.ts
+└── middleware.ts               # Next.js middleware
 ```
 
 ## 🏗️ How We Built This
